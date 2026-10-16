@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevOps Task Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <div class="console">
+    <header class="console__header">
+      <div class="console__title">
+        <span class="status-dot" id="status-dot"></span>
+        <h1>task-tracker<span class="cursor">_</span></h1>
+      </div>
+      <p class="console__subtitle">Twój pierwszy mikroserwis w podróży do DevOps</p>
+    </header>
+
+    <form id="task-form" class="task-form">
+      <input
+        type="text"
+        id="task-title"
+        placeholder="Co dziś ogarniamy?"
+        autocomplete="off"
+        required
+      />
+      <button type="submit">Dodaj</button>
+    </form>
+
+    <ul id="task-list" class="task-list">
+      <!-- zadania wstrzykiwane przez script.js -->
+    </ul>
+
+    <p id="empty-state" class="empty-state" hidden>
+      Brak zadań. Dodaj pierwsze powyżej.
+    </p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
