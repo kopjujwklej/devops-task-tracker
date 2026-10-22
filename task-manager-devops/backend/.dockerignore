@@ -1,0 +1,16 @@
+# Środowisko wirtualne i cache Pythona — zależności instalujemy od zera w obrazie
+venv/
+__pycache__/
+*.pyc
+
+# 🔴 MUST KNOW: sekrety NIGDY nie trafiają do obrazu — ktoś mógłby je
+# wyciągnąć z warstw obrazu nawet po ich "usunięciu" w kolejnej warstwie.
+.env
+
+# Historia Gita — kontenerowi niepotrzebna, tylko zwiększa kontekst builda
+.git/
+.gitignore
+
+# Pliki IDE
+.vscode/
+.idea/

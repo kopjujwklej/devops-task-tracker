@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  # --- BAZA DANYCH ---------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: task-tracker-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: taskuser
+      POSTGRES_PASSWORD: taskpass
+      POSTGRES_DB: taskdb
+    volumes:
+      # 🔴 MUST KNOW: bez wolumenu dane znikają razem z kontenerem przy
+      # `docker compose down`. Wolumen żyje niezależnie od cyklu życia kontenera.
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskuser -d taskdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # --- BACKEND API ----------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: task-tracker-backend
+    restart: unless-stopped
+    environment:
+      # 🔴 MUST KNOW: "db" to nazwa usługi z tego pliku, nie "localhost" —
+      # Docker Compose tworzy wewnętrzną sieć, gdzie kontenery widzą się
+      # nawzajem po nazwie usługi, jak po hostname.
+      DATABASE_URL: postgresql://taskuser:taskpass@db:5432/taskdb
+      FLASK_DEBUG: "false"
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        # 🔴 MUST KNOW: "service_healthy" czeka, aż baza FAKTYCZNIE odpowiada
+        # (healthcheck wyżej), a nie tylko aż kontener wystartuje —
+        # bez tego backend mógłby próbować połączyć się, zanim Postgres jest gotowy.
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # --- FRONTEND --------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: task-tracker-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+# Wolumen nazwany — Docker sam zarządza tym, gdzie fizycznie leżą dane na dysku.
+volumes:
+  pgdata:
