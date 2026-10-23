@@ -1,0 +1,36 @@
+name: CI - Lint and Test
+
+# 🔴 MUST KNOW: te triggery odpowiadają strategii branchy z FAZY 1.2 -
+# testujemy KAŻDY push na main/develop i KAŻDY Pull Request do nich.
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  backend-lint-test:
+    name: Backend - Lint and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pobierz kod repozytorium
+        uses: actions/checkout@v4
+
+      - name: Ustaw Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"  # 🟡 NICE TO KNOW: cache'uje zależności między uruchomieniami
+
+      - name: Zainstaluj zależności
+        working-directory: ./backend
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint (flake8)
+        working-directory: ./backend
+        run: flake8 .
+
+      - name: Testy jednostkowe (pytest)
+        working-directory: ./backend
+        run: pytest -v
